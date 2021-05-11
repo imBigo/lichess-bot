@@ -72,7 +72,7 @@ class EngineWrapper:
     def search(self, board, time_limit, ponder):
         result = self.engine.play(board, time_limit, info=chess.engine.INFO_ALL, ponder=ponder)
         self.last_move_info = result.info
-        self.print_stats()
+        self.print_stats(board)
         return result.move
 
     def print_stats(self, board):
