@@ -192,7 +192,7 @@ class EngineWrapper:
 
     def get_stats(self, for_chat=False):
         info = self.last_move_info.copy()
-        stats = ["depth", "nps", "nodes", "score", "ponderpv"]
+        stats = ["depth", "nps", "nodes", "tbhits", "score", "ponderpv"]
         if for_chat and "ponderpv" in stats:
             bot_stats = [f"{stat}: {info[stat]}" for stat in stats if stat in info and stat != "ponderpv"]
             len_bot_stats = len(", ".join(bot_stats)) + PONDERPV_CHARACTERS
