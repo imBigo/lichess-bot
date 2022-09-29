@@ -226,11 +226,11 @@ class EngineWrapper:
             return str(readable.get(stat, lambda x: x)(info[stat]))
 
         def to_readable_key(stat):
-            readable = {"wdl": "winrate", "ponderpv": "PV", "nps": "speed", "score": "evaluation"}
+            readable = {"wdl": "winrate", "ponderpv": "PV", "nps": "speed", "score": "evaluation", "tbhits": "tbhits"}
             stat = readable.get(stat, stat)
             return stat[0].upper() + stat[1:]
 
-        stats = ["score", "wdl", "depth", "nodes", "nps", "ponderpv"]
+        stats = ["score", "wdl", "depth", "nodes", "nps", "ponderpv", "tbhits"]
         if for_chat and "ponderpv" in stats and "ponderpv" in info:
             bot_stats = [f"{to_readable_key(stat)}: {to_readable_value(stat, info)}"
                          for stat in stats if stat in info and stat != "ponderpv"]
