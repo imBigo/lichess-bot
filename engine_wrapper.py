@@ -334,11 +334,20 @@ class UCIEngine(EngineWrapper):
 
     def get_opponent_info(self, game):
         name = game.opponent.name
-        if name and "UCI_Opponent" in self.engine.protocol.config:
+        if name:
             rating = game.opponent.rating or "none"
-            title = game.opponent.title or "none"
-            player_type = "computer" if title == "BOT" else "human"
-            self.engine.configure({"UCI_Opponent": f"{title} {rating} {player_type} {name}"})
+            #title = game.opponent.title or "none"
+            #player_type = "computer" if title == "BOT" else "human"
+            if rating != "none":
+                self.engine.configure({"UCI_RatingAdv": game.me.rating - rating})
+            #self.engine.configure({"UCI_Opponent": f"{title} {rating} {player_type} {name}"})
+            contempt_options = {"Perspective": game.my_color,
+                                "WDLDrawRateReference": 0.58,
+                                "WDLDrawRateTarget": 0.9 if game.opponent.title == "BOT" else 0.3,
+                                "WDLBookExitBias": 0.15,
+                                "WDLEvalObjectivity": 0,
+                                "WDLContemptAttenuation": 0.4 if game.opponent.title == "BOT" else 0.7}
+            self.engine.configure(contempt_options)
 
     def report_game_result(self, game, board):
         self.engine.protocol._position(board)
