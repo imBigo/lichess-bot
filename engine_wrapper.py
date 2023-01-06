@@ -334,20 +334,11 @@ class UCIEngine(EngineWrapper):
 
     def get_opponent_info(self, game):
         name = game.opponent.name
-        if name:
+        if name and "UCI_Opponent" in self.engine.protocol.config:
             rating = game.opponent.rating or "none"
-            #title = game.opponent.title or "none"
-            #player_type = "computer" if title == "BOT" else "human"
-            if rating != "none":
-                self.engine.configure({"UCI_RatingAdv": game.me.rating - rating})
-            #self.engine.configure({"UCI_Opponent": f"{title} {rating} {player_type} {name}"})
-            contempt_options = {"Perspective": game.my_color,
-                                "WDLDrawRateReference": 0.58,
-                                "WDLDrawRateTarget": 0.9 if game.opponent.title == "BOT" else 0.3,
-                                "WDLBookExitBias": 0.15,
-                                "WDLEvalObjectivity": 0,
-                                "WDLContemptAttenuation": 0.4 if game.opponent.title == "BOT" else 0.7}
-            self.engine.configure(contempt_options)
+            title = game.opponent.title or "none"
+            player_type = "computer" if title == "BOT" else "human"
+            self.engine.configure({"UCI_Opponent": f"{title} {rating} {player_type} {name}"})
 
     def report_game_result(self, game, board):
         self.engine.protocol._position(board)
@@ -494,7 +485,7 @@ def get_online_move(li, board, game, online_moves_cfg, draw_or_resign_cfg):
         if can_resign and resign_on_egtb_loss and wdl == -2:
             resign = True
 
-        wdl_to_score = {2: 9900, 1: 500, 0: 0, -1: -500, -2: -9900}
+        wdl_to_score = {2: 9900, 1: 300, 0: 0, -1: -300, -2: -9900}
         comment = {"score": chess.engine.PovScore(chess.engine.Cp(wdl_to_score[wdl]), board.turn)}
     elif out_of_online_opening_book_moves[game.id] < max_out_of_book_moves:
         best_move, comment = get_chessdb_move(li, board, game, chessdb_cfg)
@@ -651,7 +642,7 @@ def get_egtb_move(board, lichess_bot_tbs, draw_or_resign_cfg):
         can_resign = draw_or_resign_cfg.get("resign_enabled", False)
         resign_on_egtb_loss = draw_or_resign_cfg.get("resign_for_egtb_minus_two", True)
         resign = bool(can_resign and resign_on_egtb_loss and wdl == -2)
-        wdl_to_score = {2: 9900, 1: 500, 0: 0, -1: -500, -2: -9900}
+        wdl_to_score = {2: 9900, 1: 300, 0: 0, -1: -300, -2: -9900}
         comment = {"score": chess.engine.PovScore(chess.engine.Cp(wdl_to_score[wdl]), board.turn)}
         return chess.engine.PlayResult(best_move, None, comment, draw_offered=offer_draw, resigned=resign)
     return chess.engine.PlayResult(None, None)
