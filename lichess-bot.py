@@ -343,8 +343,18 @@ def start_game(event, pool, play_game_args, config, matchmaker, startup_correspo
 
 
 def handle_challenge(event, li, challenge_queue, challenge_config, user_profile, matchmaker):
+    game_id = event["game"]["id"]
+    response = li.get_game_stream(game_id)
+    lines = response.iter_lines()
+
+    # Initial response of stream will be the full game info. Store it
+    initial_state = json.loads(next(lines).decode("utf-8"))
+    logger.debug(f"Initial state: {initial_state}")
+    
+    game = model.Game(initial_state, user_profile["username"], li.baseUrl, 90)
+
     chlng = model.Challenge(event["challenge"], user_profile)
-    is_supported, decline_reason = chlng.is_supported(challenge_config)
+    is_supported, decline_reason = chlng.is_supported(challenge_config, game)
     if is_supported:
         challenge_queue.append(chlng)
         sort_challenges(challenge_queue, challenge_config)

@@ -42,8 +42,21 @@ class Challenge:
 
     def is_supported_mode(self, challenge_cfg):
         return ("rated" if self.rated else "casual") in challenge_cfg["modes"]
+    
+    def is_good_fen(self, game):
+        full_black = 'rnbqkbnr'
+        full_white = 'RNBQKBNR'
+        middle_fen = '/pppppppp/8/8/8/8/PPPPPPPP/'
+        end_fen = ' w KQkq - 0 1'
+        good_fens = ['R1BQKBNR', 'RNBQKB1R', '1NBQKBNR', 'RNBQKBN1', 'RNBQK2R', 'R1BQKBN1', '1NBQKB1R']
 
-    def is_supported(self, config):
+        if game.my_color == "white":
+            for x in good_fens:
+                if game.initial_fen == full_black + middle_fen + x + end_fen:
+                    return True     
+        return False
+
+    def is_supported(self, config, game):
         try:
             if self.from_self:
                 return True, None
@@ -62,6 +75,9 @@ class Challenge:
 
             if not self.is_supported_mode(config):
                 return False, ("casual" if self.rated else "rated")
+            
+            if not self.is_good_fen(self, game):
+                return False, "variant"
 
             return True, None
 
